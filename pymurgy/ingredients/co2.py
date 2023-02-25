@@ -1,12 +1,8 @@
-# fmt: off
-# Make sure we can always import from ./ no matter where we're called from
-import sys, pathlib
-sys.path.append(str(pathlib.Path(__file__).parent.resolve()))
-# fmt: on
-
 from dataclasses import dataclass
-from common import Stage, Ingredient, to_fahrenheit, to_bar, to_gallons, to_litres
-from extract import Fermentable
+from ..common import Stage
+from ..ingredients.ingredient import Ingredient
+from ..ingredients.extract import Fermentable
+from ..calc import to_fahrenheit, to_bar, to_litres
 
 
 @dataclass

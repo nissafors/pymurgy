@@ -1,14 +1,11 @@
-# fmt: off
-# Make sure we can always import from ./ no matter where we're called from
-import sys, pathlib
-sys.path.append(str(pathlib.Path(__file__).parent.resolve()))
-# fmt: on
-
 from dataclasses import dataclass
-from common import Stage, Ingredient, ComparableEnum, AutoIncrementEnum
+from ..common import Stage as _Stage
+from ..abstract import ComparableEnum as _ComparableEnum
+from ..abstract import AutoIncrementEnum as _AutoIncrementEnum
+from .ingredient import Ingredient as _Ingredient
 
 
-class Fermentable(ComparableEnum, AutoIncrementEnum):
+class Fermentable(_ComparableEnum, _AutoIncrementEnum):
     """Convenience enum for standard fermentables with known HWE and fermentability.
 
     Yeast attenuation will be used when fermentability is None.
@@ -47,7 +44,7 @@ class Fermentable(ComparableEnum, AutoIncrementEnum):
 
 
 @dataclass
-class Extract(Ingredient):
+class Extract(_Ingredient):
     """Represents an extract giver.
 
     Properties:
@@ -90,13 +87,13 @@ class Extract(Ingredient):
         Returns:
             Efficiency as specific gravity, e.g. 1.040.
         """
-        if self.mashable and self.stage == Stage.FERMENT:
+        if self.mashable and self.stage == _Stage.FERMENT:
             # Adding a mashable to the fermenter would be a stupid thing. Let's call that zero efficiency.
             efficiency = 0.0
-        elif self.mashable and self.stage == Stage.BOIL:
+        elif self.mashable and self.stage == _Stage.BOIL:
             # Adding a mashable to the boil indicates it's a steeping grain.
             efficiency = steeping_efficiency
-        elif not include_post_boil and self.stage == Stage.FERMENT:
+        elif not include_post_boil and self.stage == _Stage.FERMENT:
             efficiency = 0.0
         elif not self.mashable:
             # Non-mashable extracts contribute all of their HWE. Let's ignore edge cases where someone

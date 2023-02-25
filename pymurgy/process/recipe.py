@@ -7,16 +7,17 @@ sys.path.append(str(pathlib.Path(__file__).parent.resolve()))
 # fmt: on
 
 import json, inspect
-import common
 from typing import Any
-from hop import Hop
-from extract import Extract
-from yeast import Yeast
-from co2 import CO2
-from brewhouse import Brewhouse
+from .brewhouse import Brewhouse
+from ..ingredients.hop import Hop
+from ..ingredients.extract import Extract
+from ..ingredients.yeast import Yeast
+from ..ingredients.co2 import CO2
+from ..abstract import Serializable
+from ..calc import to_plato
 
 
-class Recipe(common.Serializable):
+class Recipe(Serializable):
     """Represents a beer recipe.
 
     Properties:
@@ -103,8 +104,8 @@ class Recipe(common.Serializable):
     def abv(self) -> float:
         """Returns ABV calculated from OG and FG."""
         fg = self.fg()
-        original_extract = common.to_plato(self.og())
-        apparent_extract = common.to_plato(fg)
+        original_extract = to_plato(self.og())
+        apparent_extract = to_plato(fg)
         q = 0.22 + 0.001 * original_extract
         real_extract = (q * original_extract + apparent_extract) / (1 + q)
         abw = (original_extract - real_extract) / (2.0665 - 0.010665 * original_extract)
@@ -169,6 +170,11 @@ class Recipe(common.Serializable):
         for k, v in self.__dict__.items():
             if isinstance(v, list):
                 v = [dict(x) for x in v]
-            elif isinstance(v, common.Serializable):
-                v = dict(v)
+            else:
+                # This is a cumbersome way to check if v is a subclass of Serializable because isinstance and
+                # issubclass can't be trusted when import's get a little bit complex.
+                for spr in v.__class__.__mro__[:-1]:  # Skip <class 'object'>
+                    c = str(spr).split(".")[-1][:-2]
+                    if c == "Serializable":
+                        v = dict(v)
             yield k, v

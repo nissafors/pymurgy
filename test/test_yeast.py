@@ -5,8 +5,8 @@ sys.path.append(str(pathlib.Path(__file__).parent.parent.resolve()))
 # fmt: on
 
 import unittest, json
-from pymurgy.yeast import Yeast
-from pymurgy.common import Stage, to_plato, BeerStyle
+from pymurgy import Yeast, Stage, BeerStyle
+from pymurgy.calc import to_plato
 
 
 class TestYeast(unittest.TestCase):

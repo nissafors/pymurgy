@@ -5,8 +5,8 @@ sys.path.append(str(pathlib.Path(__file__).parent.parent.resolve()))
 # fmt: on
 
 import unittest, json
-from pymurgy.hop import Hop
-from pymurgy.common import Stage, compute_cooling_coefficient
+from pymurgy import Hop, Stage
+from pymurgy.calc import cooling_coefficient
 
 
 class TestHop(unittest.TestCase):
@@ -19,14 +19,14 @@ class TestHop(unittest.TestCase):
     def test_compute_post_boil_utilization(self):
         hop = Hop(time=6)
         expected = 0.0102109  # Pre-calculated
-        k = compute_cooling_coefficient(20.0, 25.0, 20.0)
+        k = cooling_coefficient(20.0, 25.0, 20.0)
         actual = hop.compute_post_boil_utilization(1.055, 1.065, 20.0, 25.0, k)
         self.assertAlmostEqual(expected, actual, 6)
 
     def test_ibu_boil(self):
         hop = Hop(stage=Stage.BOIL, g=56.7, time=6, aa=0.10)
         expected = 17.0317477  # Pre-calculated
-        k = compute_cooling_coefficient(20.0, 25.0, 20.0)
+        k = cooling_coefficient(20.0, 25.0, 20.0)
         actual = hop.ibu(1.055, 1.065, 19.87, 20.0, 25.0, k)
         self.assertAlmostEqual(expected, actual, 6)
 

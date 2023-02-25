@@ -1,12 +1,8 @@
-# fmt: off
-# Make sure we can always import from ./ no matter where we're called from
-import sys, pathlib
-sys.path.append(str(pathlib.Path(__file__).parent.resolve()))
-# fmt: on
-
 import math
 from dataclasses import dataclass
-from common import *
+from .ingredient import Ingredient
+from ..calc import cool_time, to_kelvin
+from ..common import Stage
 
 
 @dataclass
@@ -59,7 +55,7 @@ class Hop(Ingredient):
             post_boil_gravity (float): Specific gravity at flameout.
             temp_approach (int): Approaching temperature, e.g. ground water temperature for immersion chillers.
             temp_target (int): Temperature reached in cool_time minutes. Must be higher than temp_surround.
-            cooling_coefficient (float): See common.compute_cooling_coefficient().
+            cooling_coefficient (float): See calc.cooling_coefficient().
 
         Returns:
             float: Alpha acid utilization factor.
@@ -69,8 +65,8 @@ class Hop(Ingredient):
         decimal_alpha_acid_utilization = 0.0
         t = self.time
         sg = float(pre_boil_gravity + post_boil_gravity) / 2.0
-        cool_time = compute_cool_time(temp_approach, temp_target, cooling_coefficient)
-        while t < self.time + cool_time:
+        ct = cool_time(temp_approach, temp_target, cooling_coefficient)
+        while t < self.time + ct:
             dU = -1.65 * 0.000125 ** (sg - 1.0) * -0.04 * math.e ** (-0.04 * t) / 4.15
             temp_kelvin = to_kelvin(
                 (100 - temp_approach) * math.e ** (-1.0 * cooling_coefficient * (t - self.time)) + temp_approach

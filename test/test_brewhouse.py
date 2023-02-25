@@ -5,8 +5,8 @@ sys.path.append(str(pathlib.Path(__file__).parent.parent.resolve()))
 # fmt: on
 
 import unittest, json
-from pymurgy.brewhouse import Brewhouse
-from pymurgy.common import compute_cooling_coefficient
+from pymurgy import Brewhouse
+from pymurgy.calc import cooling_coefficient
 
 
 class TestYeast(unittest.TestCase):
@@ -24,7 +24,7 @@ class TestYeast(unittest.TestCase):
         brewhouse = Brewhouse(
             boil_off_rate=0.15, efficiency=0.8, temp_approach=10, temp_target=20, cool_time_boil_to_target=45
         )
-        expected = compute_cooling_coefficient(10, 20, 45, 100)
+        expected = cooling_coefficient(10, 20, 45, 100)
         actual = brewhouse.cooling_coefficient()
         self.assertAlmostEqual(expected, actual, 6)
 

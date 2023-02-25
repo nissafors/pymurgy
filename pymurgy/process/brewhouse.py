@@ -1,11 +1,12 @@
-# fmt: off
-# Make sure we can always import from ./ no matter where we're called from
-import sys, pathlib
-sys.path.append(str(pathlib.Path(__file__).parent.resolve()))
-# fmt: on
+## fmt: off
+## Make sure we can always import from ./ no matter where we're called from
+# import sys, pathlib
+# sys.path.append(str(pathlib.Path(__file__).parent.resolve()))
+## fmt: on
 
 from dataclasses import dataclass
-from common import Serializable, compute_cooling_coefficient
+from ..abstract import Serializable
+from ..calc import cooling_coefficient
 
 
 @dataclass
@@ -28,4 +29,4 @@ class Brewhouse(Serializable):
 
     def cooling_coefficient(self) -> float:
         """Get the cooling coefficient for this brewhouse."""
-        return compute_cooling_coefficient(self.temp_approach, self.temp_target, self.cool_time_boil_to_target, 100)
+        return cooling_coefficient(self.temp_approach, self.temp_target, self.cool_time_boil_to_target, 100)

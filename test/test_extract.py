@@ -5,8 +5,7 @@ sys.path.append(str(pathlib.Path(__file__).parent.parent.resolve()))
 # fmt: on
 
 import unittest, json
-from pymurgy.extract import Extract
-from pymurgy.common import Stage
+from pymurgy import Extract, Stage
 
 
 class TestExtract(unittest.TestCase):

@@ -5,9 +5,7 @@ sys.path.append(str(pathlib.Path(__file__).parent.parent.resolve()))
 # fmt: on
 
 import unittest, json
-from pymurgy.co2 import CO2
-from pymurgy.common import Stage
-from pymurgy.extract import Fermentable
+from pymurgy import CO2, Stage, Fermentable
 
 
 class TestCO2(unittest.TestCase):
