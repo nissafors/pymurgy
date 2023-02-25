@@ -9,6 +9,7 @@ sys.path.append(str(pathlib.Path(__file__).parent.resolve()))
 import json, inspect
 from typing import Any
 from .brewhouse import Brewhouse
+from .temperature import Temperature
 from ..ingredients.hop import Hop
 from ..ingredients.extract import Extract
 from ..ingredients.yeast import Yeast
@@ -27,8 +28,7 @@ class Recipe(Serializable):
         hops (list[Hop]): Hops.
         yeast (Yeast): Yeast.
         co2 (CO2): Carbonation level.
-        mash_time (int): Mash time in minutes.
-        mash_temp (int): Mash temperature in degrees Celsius.
+        mash_steps (Temperature): A list of mash steps.
         boil_time (int): Boil time in minutes.
         post_boil_volume (int): Post boil volume in litres.
         pitch_temp (int): Pitch temperature in degrees Celsius.
@@ -42,8 +42,7 @@ class Recipe(Serializable):
         hops: list[Hop],
         yeast: Yeast,
         co2: CO2,
-        mash_time: int,
-        mash_temp: int,
+        mash_steps: list[Temperature],
         boil_time: int,
         post_boil_volume: int,
         pitch_temp: int,
@@ -55,8 +54,7 @@ class Recipe(Serializable):
         self.hops = hops
         self.yeast = yeast
         self.co2 = co2
-        self.mash_time = mash_time
-        self.mash_temp = mash_temp
+        self.mash_steps = mash_steps
         self.boil_time = boil_time
         self.post_boil_volume = post_boil_volume
         self.pitch_temp = pitch_temp
@@ -162,6 +160,8 @@ class Recipe(Serializable):
             return CO2.from_dict(value)
         elif key == "brewhouse":
             return Brewhouse.from_dict(value)
+        elif key == "mash_steps":
+            return [Temperature.from_dict(x) for x in value]
         else:
             return value
 

@@ -5,7 +5,7 @@ sys.path.append(str(pathlib.Path(__file__).parent.parent.resolve()))
 # fmt: on
 
 import unittest, json
-from pymurgy import Extract, Hop, Yeast, Recipe, Brewhouse, CO2, Stage
+from pymurgy import Extract, Hop, Yeast, Recipe, Brewhouse, CO2, Stage, Temperature
 from pymurgy.calc import to_plato
 
 
@@ -26,6 +26,7 @@ class TestRecipe(unittest.TestCase):
         hops = [Hop(name="Hallertau", g=48, time=60, aa=0.04), Hop(name="Hallertau", g=48, time=0, aa=0.04)]
         yeast = Yeast(name="White Labs WLP565 Saison Ale", attenuation=0.75)
         co2 = CO2(volumes=3.5)
+        mash_steps = [Temperature(temp_init=64, temp_final=64, time=90)]
         self.recipe = Recipe(
             name="Raison d'saison",
             brewhouse=brewhouse,
@@ -33,8 +34,7 @@ class TestRecipe(unittest.TestCase):
             hops=hops,
             yeast=yeast,
             co2=co2,
-            mash_time=90,
-            mash_temp=64,
+            mash_steps=mash_steps,
             boil_time=90,
             post_boil_volume=22.7,
             pitch_temp=20,
@@ -187,11 +187,12 @@ class TestRecipe(unittest.TestCase):
         # CO2
         self.assertEqual("CONDITION", d["co2"]["stage"])
         self.assertEqual(3.5, d["co2"]["volumes"])
+        # Mash steps
+        self.assertEqual(64, d["mash_steps"][0]["temp_init"])
+        self.assertEqual(64, d["mash_steps"][0]["temp_final"])
+        self.assertEqual(90, d["mash_steps"][0]["time"])
         # Data
         self.assertEqual("Raison d'saison", d["name"])
-        self.assertEqual(90, d["mash_time"])
-        self.assertEqual(64, d["mash_temp"])
-        self.assertEqual(90, d["boil_time"])
         self.assertEqual(22.7, d["post_boil_volume"])
         self.assertEqual(20, d["pitch_temp"])
 
@@ -235,7 +236,7 @@ class TestRecipe(unittest.TestCase):
         self.assertEqual(0, recipe.extracts[3].deg_ebc)
         self.assertEqual(False, recipe.extracts[3].mashable)
         self.assertEqual(4, len(recipe.extracts))
-        ## Hops
+        # Hops
         self.assertEqual(Stage.BOIL, recipe.hops[0].stage)
         self.assertEqual("Hallertau", recipe.hops[0].name)
         self.assertEqual(48, recipe.hops[0].g)
@@ -247,7 +248,7 @@ class TestRecipe(unittest.TestCase):
         self.assertEqual(0, recipe.hops[1].time)
         self.assertEqual(0.04, recipe.hops[1].aa)
         self.assertEqual(2, len(recipe.hops))
-        ## Yeast
+        # Yeast
         self.assertEqual(Stage.FERMENT, recipe.yeast.stage)
         self.assertEqual("White Labs WLP565 Saison Ale", recipe.yeast.name)
         self.assertEqual("", recipe.yeast.description)
@@ -255,10 +256,12 @@ class TestRecipe(unittest.TestCase):
         # CO2
         self.assertEqual(Stage.CONDITION, recipe.co2.stage)
         self.assertEqual(3.5, recipe.co2.volumes)
-        ## Data
+        # Mash steps
+        self.assertEqual(64, recipe.mash_steps[0].temp_init)
+        self.assertEqual(64, recipe.mash_steps[0].temp_final)
+        self.assertEqual(90, recipe.mash_steps[0].time)
+        # Data
         self.assertEqual("Raison d'saison", recipe.name)
-        self.assertEqual(90, recipe.mash_time)
-        self.assertEqual(64, recipe.mash_temp)
         self.assertEqual(90, recipe.boil_time)
         self.assertEqual(22.7, recipe.post_boil_volume)
         self.assertEqual(20, recipe.pitch_temp)
