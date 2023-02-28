@@ -1,12 +1,7 @@
 from __future__ import annotations
-
-# fmt: off
-# Make sure we can always import from ./ no matter where we're called from
-import sys, pathlib
-sys.path.append(str(pathlib.Path(__file__).parent.resolve()))
-# fmt: on
-
 import json, inspect
+from dataclasses import dataclass, field
+from datetime import date
 from typing import Any
 from .brewhouse import Brewhouse
 from .temperature import Temperature
@@ -18,6 +13,7 @@ from ..abstract import Serializable
 from ..calc import to_plato
 
 
+@dataclass
 class Recipe(Serializable):
     """Represents a beer recipe.
 
@@ -32,32 +28,24 @@ class Recipe(Serializable):
         boil_time (int): Boil time in minutes.
         post_boil_volume (int): Post boil volume in litres.
         pitch_temp (int): Pitch temperature in degrees Celsius.
+        authors (list[str]): Author(s) of the recipe. Optional.
+        date (date): Date of creation. Optional, None if not set.
+        description (str): Description of the recipe. Optional.
     """
 
-    def __init__(
-        self,
-        name: str,
-        brewhouse: Brewhouse,
-        extracts: list[Extract],
-        hops: list[Hop],
-        yeast: Yeast,
-        co2: CO2,
-        mash_steps: list[Temperature],
-        boil_time: int,
-        post_boil_volume: int,
-        pitch_temp: int,
-    ):
-        """Initialize a new Recipe object."""
-        self.name = name
-        self.brewhouse = brewhouse
-        self.extracts = extracts
-        self.hops = hops
-        self.yeast = yeast
-        self.co2 = co2
-        self.mash_steps = mash_steps
-        self.boil_time = boil_time
-        self.post_boil_volume = post_boil_volume
-        self.pitch_temp = pitch_temp
+    name: str
+    brewhouse: Brewhouse
+    extracts: list[Extract]
+    hops: list[Hop]
+    yeast: Yeast
+    co2: CO2
+    mash_steps: list[Temperature]
+    boil_time: int
+    post_boil_volume: int
+    pitch_temp: int
+    authors: list[str] = field(default_factory=list)
+    date: date = None
+    description: str = ""
 
     def pre_boil_volume(self) -> float:
         """Returns pre-boil volume."""
@@ -162,14 +150,18 @@ class Recipe(Serializable):
             return Brewhouse.from_dict(value)
         elif key == "mash_steps":
             return [Temperature.from_dict(x) for x in value]
+        elif key == "date":
+            return date.fromisoformat(value)
         else:
             return value
 
     def __iter__(self):
         """Yield string representation (key, value) tuples from instance attributes."""
         for k, v in self.__dict__.items():
-            if isinstance(v, list):
+            if isinstance(v, list) and v and not isinstance(v[0], str):
                 v = [dict(x) for x in v]
+            elif isinstance(v, date):
+                v = v.isoformat()
             else:
                 # This is a cumbersome way to check if v is a subclass of Serializable because isinstance and
                 # issubclass can't be trusted when import's get a little bit complex.

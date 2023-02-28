@@ -5,6 +5,7 @@ sys.path.append(str(pathlib.Path(__file__).parent.parent.resolve()))
 # fmt: on
 
 import unittest, json
+from datetime import date
 from pymurgy import Extract, Hop, Yeast, Recipe, Brewhouse, CO2, Stage, Temperature
 from pymurgy.calc import to_plato
 
@@ -38,6 +39,9 @@ class TestRecipe(unittest.TestCase):
             boil_time=90,
             post_boil_volume=22.7,
             pitch_temp=20,
+            authors=["Jamil Zainasheff", "John Palmer"],
+            date=date(2007, 10, 5),
+            description="Saison from Brewing Classic Styles.",
         )
 
     def test_pre_boil_volume(self):
@@ -195,6 +199,10 @@ class TestRecipe(unittest.TestCase):
         self.assertEqual("Raison d'saison", d["name"])
         self.assertEqual(22.7, d["post_boil_volume"])
         self.assertEqual(20, d["pitch_temp"])
+        self.assertEqual("Jamil Zainasheff", d["authors"][0])
+        self.assertEqual("John Palmer", d["authors"][1])
+        self.assertEqual("2007-10-05", d["date"])
+        self.assertEqual("Saison from Brewing Classic Styles.", d["description"])
 
     def test_from_dict(self):
         j = json.dumps(dict(self.recipe))
@@ -265,6 +273,10 @@ class TestRecipe(unittest.TestCase):
         self.assertEqual(90, recipe.boil_time)
         self.assertEqual(22.7, recipe.post_boil_volume)
         self.assertEqual(20, recipe.pitch_temp)
+        self.assertEqual("Jamil Zainasheff", recipe.authors[0])
+        self.assertEqual("John Palmer", recipe.authors[1])
+        self.assertEqual(date(2007, 10, 5), recipe.date)
+        self.assertEqual("Saison from Brewing Classic Styles.", recipe.description)
 
 
 if __name__ == "__main__":
