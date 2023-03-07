@@ -1,7 +1,7 @@
 import math
 from dataclasses import dataclass
 from .ingredient import Ingredient
-from ..calc import cool_time, to_kelvin
+from ..calc import cool_time, celsius_to_kelvin
 from ..common import Stage
 
 
@@ -68,7 +68,7 @@ class Hop(Ingredient):
         ct = cool_time(temp_approach, temp_target, cooling_coefficient)
         while t < self.time + ct:
             dU = -1.65 * 0.000125 ** (sg - 1.0) * -0.04 * math.e ** (-0.04 * t) / 4.15
-            temp_kelvin = to_kelvin(
+            temp_kelvin = celsius_to_kelvin(
                 (100 - temp_approach) * math.e ** (-1.0 * cooling_coefficient * (t - self.time)) + temp_approach
             )
             degree_of_utilization = 2.39 * 10.0**11.0 * math.e ** (-9773.0 / temp_kelvin)

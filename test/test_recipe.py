@@ -6,15 +6,13 @@ sys.path.append(str(pathlib.Path(__file__).parent.parent.resolve()))
 
 import unittest, json
 from datetime import date
-from pymurgy import Extract, Hop, Yeast, Recipe, Brewhouse, CO2, Stage, Temperature
+from pymurgy import Extract, Hop, Yeast, Recipe, Brewhouse, CO2, Stage, Temperature, Mash
 from pymurgy.calc import to_plato
 
 
 class TestRecipe(unittest.TestCase):
     def setUp(self):
-        brewhouse = Brewhouse(
-            boil_off_rate=0.14, efficiency=0.8, temp_approach=10, temp_target=19, cool_time_boil_to_target=45
-        )
+        brewhouse = Brewhouse(boil_off_rate=0.14, temp_approach=10, temp_target=19, cool_time_boil_to_target=45)
         # Raison d'saison from Brewing Classic Styles
         extracts = [
             Extract(stage=Stage.MASH, name="Pilsner malt", kg=4.76, max_hwe=309, deg_ebc=2.5, mashable=True),
@@ -28,6 +26,7 @@ class TestRecipe(unittest.TestCase):
         yeast = Yeast(name="White Labs WLP565 Saison Ale", attenuation=0.75)
         co2 = CO2(volumes=3.5)
         mash_steps = [Temperature(temp_init=64, temp_final=64, time=90)]
+        mash = Mash(steps=mash_steps, efficiency=0.8)
         self.recipe = Recipe(
             name="Raison d'saison",
             brewhouse=brewhouse,
@@ -35,7 +34,7 @@ class TestRecipe(unittest.TestCase):
             hops=hops,
             yeast=yeast,
             co2=co2,
-            mash_steps=mash_steps,
+            mash=mash,
             boil_time=90,
             post_boil_volume=22.7,
             pitch_temp=20,
@@ -133,7 +132,6 @@ class TestRecipe(unittest.TestCase):
         d = json.loads(j)
         # Brewhouse
         self.assertEqual(0.14, d["brewhouse"]["boil_off_rate"])
-        self.assertEqual(0.8, d["brewhouse"]["efficiency"])
         self.assertEqual(10, d["brewhouse"]["temp_approach"])
         self.assertEqual(19, d["brewhouse"]["temp_target"])
         self.assertEqual(45, d["brewhouse"]["cool_time_boil_to_target"])
@@ -191,10 +189,15 @@ class TestRecipe(unittest.TestCase):
         # CO2
         self.assertEqual("CONDITION", d["co2"]["stage"])
         self.assertEqual(3.5, d["co2"]["volumes"])
-        # Mash steps
-        self.assertEqual(64, d["mash_steps"][0]["temp_init"])
-        self.assertEqual(64, d["mash_steps"][0]["temp_final"])
-        self.assertEqual(90, d["mash_steps"][0]["time"])
+        # Mash
+        self.assertEqual(64, d["mash"]["steps"][0]["temp_init"])
+        self.assertEqual(64, d["mash"]["steps"][0]["temp_final"])
+        self.assertEqual(90, d["mash"]["steps"][0]["time"])
+        self.assertEqual(0.8, d["mash"]["efficiency"])
+        self.assertEqual(3.0, d["mash"]["liqour_to_grist_ratio"])
+        self.assertEqual(1.0, d["mash"]["absorption"])
+        self.assertEqual(1.722, d["mash"]["grist_heat_capacity"])
+        self.assertEqual(0.67, d["mash"]["displacement"])
         # Data
         self.assertEqual("Raison d'saison", d["name"])
         self.assertEqual(22.7, d["post_boil_volume"])
@@ -210,7 +213,6 @@ class TestRecipe(unittest.TestCase):
         recipe: Recipe = Recipe.from_dict(d)
         # Brewhouse
         self.assertEqual(0.14, recipe.brewhouse.boil_off_rate)
-        self.assertEqual(0.8, recipe.brewhouse.efficiency)
         self.assertEqual(10, recipe.brewhouse.temp_approach)
         self.assertEqual(19, recipe.brewhouse.temp_target)
         self.assertEqual(45, recipe.brewhouse.cool_time_boil_to_target)
@@ -265,9 +267,14 @@ class TestRecipe(unittest.TestCase):
         self.assertEqual(Stage.CONDITION, recipe.co2.stage)
         self.assertEqual(3.5, recipe.co2.volumes)
         # Mash steps
-        self.assertEqual(64, recipe.mash_steps[0].temp_init)
-        self.assertEqual(64, recipe.mash_steps[0].temp_final)
-        self.assertEqual(90, recipe.mash_steps[0].time)
+        self.assertEqual(64, recipe.mash.steps[0].temp_init)
+        self.assertEqual(64, recipe.mash.steps[0].temp_final)
+        self.assertEqual(90, recipe.mash.steps[0].time)
+        self.assertEqual(0.8, recipe.mash.efficiency)
+        self.assertEqual(3.0, recipe.mash.liqour_to_grist_ratio)
+        self.assertEqual(1.0, recipe.mash.absorption)
+        self.assertEqual(1.722, recipe.mash.grist_heat_capacity)
+        self.assertEqual(0.67, recipe.mash.displacement)
         # Data
         self.assertEqual("Raison d'saison", recipe.name)
         self.assertEqual(90, recipe.boil_time)

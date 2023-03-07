@@ -4,13 +4,14 @@ from dataclasses import dataclass, field
 from datetime import date
 from typing import Any
 from .brewhouse import Brewhouse
-from .temperature import Temperature
+from .mash import Mash
 from ..ingredients.hop import Hop
 from ..ingredients.extract import Extract
 from ..ingredients.yeast import Yeast
 from ..ingredients.co2 import CO2
 from ..abstract import Serializable
 from ..calc import to_plato
+from ..util import is_instance_of_name
 
 
 @dataclass
@@ -24,7 +25,7 @@ class Recipe(Serializable):
         hops (list[Hop]): Hops.
         yeast (Yeast): Yeast.
         co2 (CO2): Carbonation level.
-        mash_steps (Temperature): A list of mash steps.
+        mash (Mash): The mash process.
         boil_time (int): Boil time in minutes.
         post_boil_volume (int): Post boil volume in litres.
         pitch_temp (int): Pitch temperature in degrees Celsius.
@@ -39,7 +40,7 @@ class Recipe(Serializable):
     hops: list[Hop]
     yeast: Yeast
     co2: CO2
-    mash_steps: list[Temperature]
+    mash: Mash
     boil_time: int
     post_boil_volume: int
     pitch_temp: int
@@ -57,14 +58,14 @@ class Recipe(Serializable):
 
         This is different from post_boil_gravity() in the sense that it includes sugar additions to the fermenter.
         """
-        return sum([x.sg(self.post_boil_volume, self.brewhouse.efficiency, True) - 1 for x in self.extracts]) + 1
+        return sum([x.sg(self.post_boil_volume, self.mash.efficiency, True) - 1 for x in self.extracts]) + 1
 
     def post_boil_gravity(self) -> float:
         """Return post-boil gravity.
 
         This is different from og() in the sense that it excludes sugar additions to the fermenter.
         """
-        return sum([x.sg(self.post_boil_volume, self.brewhouse.efficiency, False) - 1 for x in self.extracts]) + 1
+        return sum([x.sg(self.post_boil_volume, self.mash.efficiency, False) - 1 for x in self.extracts]) + 1
 
     def bg(self) -> float:
         """Returns pre-boil gravity."""
@@ -148,8 +149,8 @@ class Recipe(Serializable):
             return CO2.from_dict(value)
         elif key == "brewhouse":
             return Brewhouse.from_dict(value)
-        elif key == "mash_steps":
-            return [Temperature.from_dict(x) for x in value]
+        elif key == "mash":
+            return Mash.from_dict(value)
         elif key == "date":
             return date.fromisoformat(value)
         else:
@@ -163,10 +164,6 @@ class Recipe(Serializable):
             elif isinstance(v, date):
                 v = v.isoformat()
             else:
-                # This is a cumbersome way to check if v is a subclass of Serializable because isinstance and
-                # issubclass can't be trusted when import's get a little bit complex.
-                for spr in v.__class__.__mro__[:-1]:  # Skip <class 'object'>
-                    c = str(spr).split(".")[-1][:-2]
-                    if c == "Serializable":
-                        v = dict(v)
+                if is_instance_of_name(v, "Serializable"):
+                    v = dict(v)
             yield k, v

@@ -3,6 +3,7 @@ from .ingredients.extract import Fermentable, Extract
 from .ingredients.hop import Hop
 from .ingredients.yeast import Yeast
 from .ingredients.co2 import CO2
+from .process.mash import Mash
+from .process.process import Process, Temperature
 from .process.recipe import Recipe
-from .process.temperature import Temperature
 from .common import Stage, BeerFamily, BeerStyle

@@ -6,17 +6,22 @@ sys.path.append(str(pathlib.Path(__file__).parent.resolve()))
 import math
 
 
-def to_kelvin(celsius: float) -> float:
+def celsius_to_kelvin(celsius: float) -> float:
     """Convert from degrees Celsius to degrees Kelvin."""
     return celsius + 273.15
 
 
-def to_fahrenheit(celsius: float) -> float:
+def kelvin_to_celsius(kelvin: float) -> float:
+    """Convert from degrees Celsius to degrees Kelvin."""
+    return kelvin - 273.15
+
+
+def celsius_to_fahrenheit(celsius: float) -> float:
     """Convert from degrees Celsius to degrees Fahrenheit."""
     return celsius * 1.8 + 32.0
 
 
-def to_celsius(fahrenheit: float) -> float:
+def fahrenheit_to_celsius(fahrenheit: float) -> float:
     """Convert from degrees Fahrenheit to degrees Celsius."""
     return (fahrenheit - 32) * 5 / 9
 

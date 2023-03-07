@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from ..common import Stage
 from ..ingredients.ingredient import Ingredient
 from ..ingredients.extract import Fermentable
-from ..calc import to_fahrenheit, to_bar, to_litres
+from ..calc import celsius_to_fahrenheit, to_bar, to_litres
 
 
 @dataclass
@@ -29,7 +29,7 @@ class CO2(Ingredient):
         # This seems to be the most common approximation used by a lot of calculators online.
         # Original source: http://hbd.org/hbd/archive/2788.html#2788-8
         v = self.volumes
-        t = to_fahrenheit(temp)
+        t = celsius_to_fahrenheit(temp)
         psi = -16.6999 - 0.0101059 * t + 0.00116512 * t**2 + 0.173354 * t * v + 4.24267 * v - 0.0684226 * v**2
         return to_bar(psi)
 
@@ -48,7 +48,7 @@ class CO2(Ingredient):
         Returns:
             float: Amount of priming sugar per package unit in grams.
         """
-        t = to_fahrenheit(temp)
+        t = celsius_to_fahrenheit(temp)
         priming_type_factor = Fermentable.SUCROSE.hwe / (fermemtability * hwe)
         # Formulae from: https://www.homebrewersassociation.org/attachments/0000/2497/Math_in_Mash_SummerZym95.pdf
         # Seems to be widely used. This first part is fit "to some empirical data" and represents the amount of CO2

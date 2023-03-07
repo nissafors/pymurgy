@@ -8,22 +8,27 @@ import unittest
 from pymurgy import calc
 
 
-class TestFunctions(unittest.TestCase):
-    def test_to_kelvin(self):
+class TestCalc(unittest.TestCase):
+    def test_celsius_to_kelvin(self):
         expected = 293.15
-        actual = calc.to_kelvin(20)
+        actual = calc.celsius_to_kelvin(20)
         self.assertAlmostEqual(expected, actual, 6)
 
-    def test_to_fahrenheit(self):
+    def test_kelvin_to_celsius(self):
+        expected = 26.85
+        actual = calc.kelvin_to_celsius(300)
+        self.assertAlmostEqual(expected, actual, 6)
+
+    def test_celsius_to_fahrenheit(self):
         # 10 deg C
         expected = 50.0  # Pre-calculated
-        actual = calc.to_fahrenheit(10.0)
+        actual = calc.celsius_to_fahrenheit(10.0)
         self.assertEqual(expected, actual)
 
-    def test_to_celsius(self):
+    def test_fahrenheit_to_celsius(self):
         # 50 deg F
         expected = 10.0
-        actual = calc.to_celsius(50.0)
+        actual = calc.fahrenheit_to_celsius(50.0)
         self.assertEqual(expected, actual)
 
     def test_to_plato(self):
