@@ -115,12 +115,23 @@ class TestRecipe(unittest.TestCase):
         self.assertAlmostEqual(expected, actual, 6)
 
     def test_ibu(self):
-        # Lot's of math, but we've verified all these parts in other places:
         ibu_hop_60_min = self.recipe.hops[0].ibu(
-            self.recipe.bg(), self.recipe.post_boil_gravity(), 22.7, 10, 20, self.recipe.brewhouse.cooling_coefficient()
+            self.recipe.bg(),
+            self.recipe.post_boil_gravity(),
+            self.recipe.brewhouse.temp_approach,
+            self.recipe.pitch_temp,
+            self.recipe.brewhouse.cooling_coefficient(),
+            self.recipe.boil_time,
+            self.recipe.post_boil_volume,
         )
         ibu_hop_0_min = self.recipe.hops[1].ibu(
-            self.recipe.bg(), self.recipe.post_boil_gravity(), 22.7, 10, 20, self.recipe.brewhouse.cooling_coefficient()
+            self.recipe.bg(),
+            self.recipe.post_boil_gravity(),
+            self.recipe.brewhouse.temp_approach,
+            self.recipe.pitch_temp,
+            self.recipe.brewhouse.cooling_coefficient(),
+            self.recipe.boil_time,
+            self.recipe.post_boil_volume,
         )
         expected = ibu_hop_60_min + ibu_hop_0_min
         actual = self.recipe.ibu()

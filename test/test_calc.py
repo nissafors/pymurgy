@@ -73,6 +73,12 @@ class TestCalc(unittest.TestCase):
         expected = 20.0
         actual = calc.cool_time(20.0, 25.0, k, 100.0)
         self.assertAlmostEqual(expected, actual, 6)
+        k = calc.cooling_coefficient(20.0, 25.0, 10.0, 50.0)
+        expected = 10.0
+        actual = calc.cool_time(20.0, 25.0, k, 50.0)
+        self.assertAlmostEqual(expected, actual, 6)
+        lower = calc.cool_time(20.0, 25.0, k, 40.0)
+        self.assertLess(lower, actual)
 
 
 if __name__ == "__main__":

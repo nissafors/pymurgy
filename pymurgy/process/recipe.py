@@ -109,10 +109,11 @@ class Recipe(Serializable):
                 x.ibu(
                     self.bg(),
                     self.post_boil_gravity(),
-                    self.post_boil_volume,
                     self.brewhouse.temp_approach,
                     self.pitch_temp,
                     self.brewhouse.cooling_coefficient(),
+                    self.boil_time,
+                    self.post_boil_volume,
                 )
                 for x in self.hops
             ]
