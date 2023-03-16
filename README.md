@@ -1,3 +1,44 @@
 # Pymurgy library for brewing
 
-Python brewing software for creating recipes. This is an early version.
+Pymugry is a library for creating beer recipe creation and brewing calculator type applications. It is still in early
+development.
+
+## Creating a recipe
+
+From a recipe we expect a list of ingredients - water, extract givers, hops, yeast and adjuncts - plus amounts and some
+important properties of these ingredients. We also expect some basic information about how to brew this specific beer,
+like boil time, mash steps, fermentation temperatures and lagering.
+
+The way you design a recipe with pymurgy is to instantiate objects for each ingredient Extract, Hop, Yeast, Adjunct and
+CO2 are dataclasses that has fields for ingredient amounts and properties, and methods to compute their contributions
+to the recipes overall qualities. These objects are then used to instantiate a Recipe class, which also has fields for
+a few recipe specific properties, and methods to compute the aggregated properties of ingredients and processes.
+
+With a Recipe instance you can compute:
+* Pre-boil volume
+* Pre-boil gravity
+* Original gravity
+* Final gravity
+* Alcohol content
+* Bitternes
+* Beer color
+
+## Roadmap
+
+### Current release: 0.1.0
+
+* Get things going (Released: 0.1.0) 
+    - Ingredient classes (Done)
+    - Recipe class (Done)
+
+### Future releases
+
+* Recipes (0.2.0)
+    - Improve structure (Ongoing)
+    - Improve API (Ongoing)
+    - Freeze API for Ingredients and Recipe
+* Plan brews (0.3.0)
+    - Process classes (Mash, Boil, Ferment, Condition)
+    - Brew class with recipe, processes and calculators
+* Brewday calculators (0.4.0)
+* Brewlog (1.0.0)

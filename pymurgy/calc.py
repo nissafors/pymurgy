@@ -104,3 +104,17 @@ def cool_time(
     # (T_t - T_s) / (T_0 - T_s) = e^(-t * k)
     # ln((T_t - T_s) / (T_0 - T_s)) = -t * k
     return -1.0 * math.log((temp_target - temp_surround) / (temp_init - temp_surround)) / cooling_coefficient
+
+
+def boil_off_rate(pre_boil_volume: float, post_boil_volume: float, boil_time: float) -> float:
+    """Compute boil-off rate.
+
+    Args:
+        pre_boil_volume (float): Measured pre-boil volume in liters.
+        post_boil_volume (float): Measured post-boil volume in liters.
+        boil_time (float): Boil time in minutes.
+
+    Returns:
+        float: Evaporation rate per hour as a decimal number (e.g. 0.15 = 15%).
+    """
+    return 1 - (post_boil_volume / pre_boil_volume) ** (1 / (boil_time / 60))

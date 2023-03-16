@@ -47,7 +47,7 @@ class Fermentable(_ComparableEnum, _AutoIncrementEnum):
 class Extract(_Ingredient):
     """Represents an extract giver.
 
-    Properties:
+    Args:
         stage (Stage): The stage at when the ingredient is added (MASH, BOIL, FERMENT or CONDITION).
         name (str): The name of the extract giver.
         description (str): Optional description of the extract giver (malt, LME, DME, sugar etc).

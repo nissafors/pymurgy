@@ -18,7 +18,7 @@ from ..util import is_instance_of_name
 class Recipe(Serializable):
     """Represents a beer recipe.
 
-    Properties:
+    Args:
         name (str): The name of the recipe.
         brewhouse (Brewhouse): Brewhouse parameters.
         extracts (list[Extract]): Extract givers.

@@ -10,7 +10,7 @@ from ..common import Stage
 class Hop(Ingredient):
     """Represents a hop addition.
 
-    Properties:
+    Args:
         stage (Stage): The stage at when the ingredient is added (MASH, BOIL, FERMENT or CONDITION).
         name (str): The name of the hop.
         g (float): The amount of the hop in grams.
@@ -24,7 +24,7 @@ class Hop(Ingredient):
                 if store_graph is True - consumes more memory. Try increasing the number if you experience performance
                 issues.
 
-    Non-dataclass properties (not passed to __init__() and not returned by __iter__()):
+    Properties:
         graph (dict): Data for graphing accessed via graph["temperature"], graph["utilization], graph["ibu"] and
                 graph["time"]. Given that store_graph is True, this data is available after a call to the utilization()
                 function or to the ibu() function.

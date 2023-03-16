@@ -6,9 +6,9 @@ from .process import Process, Temperature
 class Mash(Process):
     """Represents the mash.
 
-    Properties:
+    Args:
         steps (list[Temperature]): Mash steps and optionally temperature changes.
-        efficiency (float): Brewhouse efficiency.
+        efficiency (float): Brewhouse efficiency as a decimal number (0.8 = 80%)
         liqour_to_grist_ratio (float): Mash thickness for the first mash step.
         absorption (float): Water absorption capacity of the grain in liters per kg.
         grist_heat_capacity (float): Heat capacity of grist in Joules per gram per degree Celsius. Default: 1.722 (to

@@ -9,11 +9,11 @@ from ..common import Stage, BeerStyle, BeerFamily
 class Yeast(Ingredient):
     """Represents a yeast.
 
-    Properties:
+    Args:
         stage (Stage): The stage at when the ingredient is added (MASH, BOIL, FERMENT or CONDITION).
         name (str): The name of the yeast.
         description (str): Optional description of the yeast (type, reused etc).
-        attenuation (float): Attenuation expressed as a decimal number (0.75 = 75%).
+        attenuation (float): Expected attenuation expressed as a decimal number (0.75 = 75%).
     """
 
     name: str = ""

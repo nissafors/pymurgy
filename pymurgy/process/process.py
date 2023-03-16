@@ -45,7 +45,7 @@ class Process(Serializable):
 class Temperature(Serializable):
     """Represents a temperature or temperature change over a period.
 
-    Properties:
+    Args:
         temp_init (float): The temperature at the start of the period in degrees Celsius.
         temp_final (float): The temperature at the end of the period in degrees Celsius.
         time (int): The length of the period in minutes.

@@ -9,7 +9,7 @@ from ..calc import celsius_to_fahrenheit, to_bar, to_litres
 class CO2(Ingredient):
     """Represents beer carbonation.
 
-    Properties:
+    Args:
         stage (Stage): The stage at when the ingredient is added (MASH, BOIL, FERMENT or CONDITION).
         volumes (float): Number of volume units of CO2 per volume unit of beer.
     """

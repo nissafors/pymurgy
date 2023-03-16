@@ -13,7 +13,7 @@ from ..calc import cooling_coefficient
 class Brewhouse(Serializable):
     """Represents The brewhouse.
 
-    Properties:
+    Args:
         boil_off_rate (float): The rate of evaporation per hour.
         temp_approach (int): Lower wort temperature limit for the chilling procedure in degrees Celsius.
         temp_target (int): A target wort temperature in degreess Celsius for which the cooling time from boil is known.

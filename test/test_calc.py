@@ -80,6 +80,14 @@ class TestCalc(unittest.TestCase):
         lower = calc.cool_time(20.0, 25.0, k, 40.0)
         self.assertLess(lower, actual)
 
+    def test_boil_off_rate(self):
+        expected = 0.2
+        actual = calc.boil_off_rate(25, 20, 60)
+        self.assertAlmostEqual(expected, actual, 6)
+        expected = 0.1745182
+        actual = calc.boil_off_rate(24, 18, 90)
+        self.assertAlmostEqual(expected, actual, 6)
+
 
 if __name__ == "__main__":
     unittest.main()

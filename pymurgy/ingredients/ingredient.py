@@ -9,7 +9,7 @@ from common import Stage
 class Ingredient(Serializable):
     """Base class for ingredients.
 
-    Properties:
+    Args:
         stage (Stage): The stage at when the ingredient is added (MASH, BOIL or FERMENT).
     """
 
