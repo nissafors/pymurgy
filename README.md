@@ -1,7 +1,6 @@
 # Pymurgy library for brewing
 
-Pymugry is a library for creating beer recipe creation and brewing calculator type applications. It is still in early
-development.
+Pymurgy is a library for beer recipe creation and brewing calculator type applications.
 
 ## Creating a recipe
 

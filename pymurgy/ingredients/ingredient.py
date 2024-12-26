@@ -1,6 +1,6 @@
 from __future__ import annotations
 import enum
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from abstract import Serializable
 from common import Stage
 
@@ -13,7 +13,7 @@ class Ingredient(Serializable):
         stage (Stage): The stage at when the ingredient is added (MASH, BOIL or FERMENT).
     """
 
-    stage: Stage = Stage.BOIL
+    stage: Stage = field(default_factory=lambda: Stage.BOIL)
 
     @classmethod
     def from_dict(

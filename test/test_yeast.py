@@ -14,7 +14,7 @@ class TestYeast(unittest.TestCase):
         yeast = Yeast(name="Test yeast", attenuation=0.7)
         self.assertEqual("Test yeast", yeast.name)
         self.assertAlmostEqual(0.7, yeast.attenuation, 6)
-        self.assertEqual(Stage.FERMENT, Yeast.stage)
+        self.assertEqual(Stage.FERMENT, yeast.stage)
 
     def test_cells_to_pitch(self):
         # Rule of thumb: 1 million cells per ml of wort per degree plato.
@@ -152,7 +152,7 @@ class TestYeast(unittest.TestCase):
         j = json.dumps(dict(yeast_0))
         d = json.loads(j)
         yeast = Yeast.from_dict(d)
-        self.assertEqual(Stage.FERMENT, Yeast.stage)
+        self.assertEqual(Stage.FERMENT, yeast.stage)
         self.assertEqual("Test yeast", yeast.name)
         self.assertEqual("A made up yeast", yeast.description)
         self.assertAlmostEqual(0.7, yeast.attenuation, 6)

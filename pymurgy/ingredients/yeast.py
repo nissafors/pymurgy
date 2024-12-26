@@ -1,5 +1,5 @@
 import math
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from .ingredient import Ingredient
 from ..calc import to_plato
 from ..common import Stage, BeerStyle, BeerFamily
@@ -19,7 +19,7 @@ class Yeast(Ingredient):
     name: str = ""
     description: str = ""
     attenuation: float = 0.75
-    stage: Stage = Stage.FERMENT
+    stage: Stage = field(default_factory=lambda: Stage.FERMENT)
 
     @staticmethod
     def cells_to_pitch(
@@ -32,7 +32,7 @@ class Yeast(Ingredient):
             style (BeerStyle): The style of the beer.
             gravity (float): The gravity of the beer when the beer is pitched. Example: 1.040.
             million_cells_per_ml_per_deg_plato (float): Optional, default is None. Setting None will result in
-                    different values depending gravity and the BeerFamily of the style:
+                    different values depending on gravity and the BeerFamily of the style:
 
                     Family / Gravity    <= 1.060    > 1.060
                     BeerFamily.ALE:     0.75        1.0

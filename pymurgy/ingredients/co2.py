@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from ..common import Stage
 from ..ingredients.ingredient import Ingredient
 from ..ingredients.extract import Fermentable
@@ -14,7 +14,7 @@ class CO2(Ingredient):
         volumes (float): Number of volume units of CO2 per volume unit of beer.
     """
 
-    stage: Stage = Stage.CONDITION
+    stage: Stage = field(default_factory=lambda: Stage.CONDITION)
     volumes: float = 0.0
 
     def force_carbonation_pressure(self, temp: float) -> float:

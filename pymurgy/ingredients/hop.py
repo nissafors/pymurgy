@@ -26,8 +26,9 @@ class Hop(Ingredient):
 
     Properties:
         graph (dict): Data for graphing accessed via graph["temperature"], graph["utilization], graph["ibu"] and
-                graph["time"]. Given that store_graph is True, this data is available after a call to the utilization()
-                function or to the ibu() function.
+                graph["time"]. Given that store_graph is True, this data is available after a call to the ibu()
+                or to the utilization_mibu() methods. Note that graph data is not recorded for the ibu_tinseth() or the
+                utilization_tinseth() methods.
     """
 
     name: str = ""
@@ -53,7 +54,7 @@ class Hop(Ingredient):
         whirlpool_time: int = 0,
         surface_area: int = 900,
         opening_area: int = None,
-    ):
+    ) -> float:
         """Calculate hop utilization with the maximum IBU (mIBU) method.
 
         Whirlpool is defined here as the time the wort cools naturally from boiling after flameout. Set whirlpool_time
@@ -145,6 +146,9 @@ class Hop(Ingredient):
     def utilization_tinseth(self, pre_boil_gravity: float, post_boil_gravity: float) -> float:
         """Calculate hop utilization with Tinseth's method.
 
+        This is a much simpler approach than the recommended mIBU method (which in turn builds upon Tinseth's
+        formulae) that does not account for hop utilization after flameout.
+
         Args:
             pre_boil_gravity (float): Specific gravity when the boil starts as a decimal number (e.g. 1.040).
             post_boil_gravity (float): Specific gravity at flameout as a decimal number (e.g. 1.050).
@@ -152,6 +156,13 @@ class Hop(Ingredient):
         Returns:
             float: Alpha acid utilization factor.
         """
+        # Quotes from Tinseth (https://www.realbeer.com/hops/research.html).
+        # "The Bigness factor accounts for reduced utilization due to higher wort gravities.
+        # Use an average gravity value for the entire boil to account for changes in the wort volume.""
+        bigness_factor = 1.65 * 0.000125 ** ((pre_boil_gravity + post_boil_gravity) / 2.0 - 1.0)
+        # "The Boil Time factor accounts for the change in utilization due to boil time:"
+        boil_time_factor = (1.0 - math.e ** (-0.04 * self.time)) / 4.15
+        return bigness_factor * boil_time_factor
 
     def ibu(
         self,
@@ -225,13 +236,7 @@ class Hop(Ingredient):
             float: Estimated bitterness contribution in International Bitternes Units (IBU).
         """
         if self.stage == Stage.BOIL:
-            # Quotes from Tinseth (https://www.realbeer.com/hops/research.html).
-            # "The Bigness factor accounts for reduced utilization due to higher wort gravities.
-            # Use an average gravity value for the entire boil to account for changes in the wort volume.""
-            bigness_factor = 1.65 * 0.000125 ** ((pre_boil_gravity + post_boil_gravity) / 2.0 - 1.0)
-            # "The Boil Time factor accounts for the change in utilization due to boil time:"
-            boil_time_factor = (1.0 - math.e ** (-0.04 * self.time)) / 4.15
-            u = bigness_factor * boil_time_factor
+            u = self.utilization_tinseth(pre_boil_gravity, post_boil_gravity)
             ibu = self._ibu(u, post_boil_volume)
         else:
             ibu = 0.0

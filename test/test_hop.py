@@ -96,6 +96,16 @@ class TestHop(unittest.TestCase):
         actual = hop.utilization_mibu(1.055, 1.065, 7, 20, self.k, 60, 20)
         self.assertAlmostEqual(expected, actual, 6)
 
+    def test_utilization_tinseth(self):
+        hop = Hop(time=6)
+        expected = 0.0494753  # Pre-calculated
+        actual = hop.utilization_tinseth(1.055, 1.065)
+        self.assertAlmostEqual(expected, actual, 6)
+        hop = Hop(time=45)
+        expected = 0.1935448  # Pre-calculated
+        actual = hop.utilization_tinseth(1.055, 1.065)
+        self.assertAlmostEqual(expected, actual, 6)
+
     def test_ibu_boil(self):
         # No whirlpool
         hop = Hop(stage=Stage.BOIL, g=60, time=10, aa=0.10)
@@ -120,12 +130,24 @@ class TestHop(unittest.TestCase):
         actual = hop.ibu(1.055, 1.065, 7, 20, self.k, 60, 20, 15)
         self.assertEqual(expected, actual)
 
-    def test_ibu_tinseth(self):
+    def test_ibu_tinseth_boil(self):
         hop = Hop(stage=Stage.BOIL, g=50, time=60, aa=0.10)
         mibu = hop.ibu(1.055, 1.065, 7, 20, self.k, 60, 20)
         tinseth = hop.ibu_tinseth(1.055, 1.065, 20)
         # On a 60 min addition it shouldn't diff too much, at least not more than 5 IBU.
         self.assertTrue(abs(mibu - tinseth) < 5)
+
+    def test_ibu_tinseth_ferment(self):
+        hop = Hop(stage=Stage.FERMENT, g=56.7, time=6, aa=0.10)
+        expected = 0.0
+        actual = hop.ibu_tinseth(1.055, 1.065, 60)
+        self.assertEqual(expected, actual)
+
+    def test_ibu_tinseth_mash(self):
+        hop = Hop(stage=Stage.MASH, g=56.7, time=6, aa=0.10)
+        expected = 0.0
+        actual = hop.ibu_tinseth(1.055, 1.065, 60)
+        self.assertEqual(expected, actual)
 
     def test_serialize(self):
         hop = Hop(stage=Stage.FERMENT, name="Test hop", g=10.5, time=15, aa=0.05)
