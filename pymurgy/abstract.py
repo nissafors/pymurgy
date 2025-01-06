@@ -24,8 +24,7 @@ class AutoIncrementEnum(enum.Enum):
         obj._value_ = value
         return obj
 
-    def __init__(self, assigned):
-        ...
+    def __init__(self, assigned): ...
 
 
 class Serializable:
@@ -37,7 +36,7 @@ class Serializable:
         callback: Callable[[Any, Any], Any] = lambda _, v: v,
         **kwargs,
     ) -> Serializable:
-        """Return an Deserializable instance created from a dict representation.
+        """Return a Serializable instance created from a dict representation.
 
         Args:
             dict_repr (dict): The class' attributes represented as a dictionary.

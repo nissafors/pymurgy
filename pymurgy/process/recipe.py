@@ -9,6 +9,7 @@ from ..ingredients.hop import Hop
 from ..ingredients.extract import Extract
 from ..ingredients.yeast import Yeast
 from ..ingredients.co2 import CO2
+from ..ingredients.water import WaterProfile, SaltAdditions
 from ..abstract import Serializable
 from ..calc import to_plato
 from ..util import is_instance_of_name
@@ -29,6 +30,8 @@ class Recipe(Serializable):
         boil_time (int): Boil time in minutes.
         post_boil_volume (int): Post boil volume in litres.
         pitch_temp (int): Pitch temperature in degrees Celsius.
+        target_water_profile (WaterProfile): Desirable ion contents of brewing water. Optional.
+        salt_additions (SaltAdditions): Additions of brewing salts. Optional.
         authors (list[str]): Author(s) of the recipe. Optional.
         date (date): Date of creation. Optional, None if not set.
         description (str): Description of the recipe. Optional.
@@ -44,6 +47,8 @@ class Recipe(Serializable):
     boil_time: int
     post_boil_volume: int
     pitch_temp: int
+    target_water_profile: WaterProfile = field(default_factory=lambda: WaterProfile())
+    salt_additions: SaltAdditions = field(default_factory=lambda: SaltAdditions())
     authors: list[str] = field(default_factory=list)
     date: date = None
     description: str = ""
@@ -103,7 +108,7 @@ class Recipe(Serializable):
         return 7.913 * sum([x.emcu(self.post_boil_volume) for x in self.extracts]) ** 0.6859
 
     def ibu(self) -> float:
-        """Return bitternes in IBU."""
+        """Return bitterness in IBU."""
         return sum(
             [
                 x.ibu(
@@ -118,6 +123,10 @@ class Recipe(Serializable):
                 for x in self.hops
             ]
         )
+
+    def water_profile(self):
+        """Returns water ion contents after salt additions."""
+        return self.salt_additions.profile(self.brewhouse.water_profile, self.pre_boil_volume())
 
     def save(self, filename):
         """Writes recipe to json file."""
@@ -152,6 +161,10 @@ class Recipe(Serializable):
             return Brewhouse.from_dict(value)
         elif key == "mash":
             return Mash.from_dict(value)
+        elif key == "target_water_profile":
+            return WaterProfile.from_dict(value)
+        elif key == "salt_additions":
+            return SaltAdditions.from_dict(value)
         elif key == "date":
             return date.fromisoformat(value)
         else:

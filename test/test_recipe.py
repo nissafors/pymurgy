@@ -6,13 +6,19 @@ sys.path.append(str(pathlib.Path(__file__).parent.parent.resolve()))
 
 import unittest, json
 from datetime import date
-from pymurgy import Extract, Hop, Yeast, Recipe, Brewhouse, CO2, Stage, Temperature, Mash
+from pymurgy import Extract, Hop, Yeast, Recipe, Brewhouse, CO2, Stage, Temperature, Mash, WaterProfile, SaltAdditions
 from pymurgy.calc import to_plato
 
 
 class TestRecipe(unittest.TestCase):
     def setUp(self):
-        brewhouse = Brewhouse(boil_off_rate=0.14, temp_approach=10, temp_target=19, cool_time_boil_to_target=45)
+        brewhouse = Brewhouse(
+            boil_off_rate=0.14,
+            temp_approach=10,
+            temp_target=19,
+            cool_time_boil_to_target=45,
+            water_profile=WaterProfile.preset_pilsen(),
+        )
         # Raison d'saison from Brewing Classic Styles
         extracts = [
             Extract(stage=Stage.MASH, name="Pilsner malt", kg=4.76, max_hwe=309, deg_ebc=2.5, mashable=True),
@@ -27,6 +33,8 @@ class TestRecipe(unittest.TestCase):
         co2 = CO2(volumes=3.5)
         mash_steps = [Temperature(temp_init=64, temp_final=64, time=90)]
         mash = Mash(steps=mash_steps, efficiency=0.8)
+        target_water_profile = WaterProfile.preset_munich()
+        salt_additions = SaltAdditions(g_caco3=3.5, g_nahco3=0.1, g_caso4=2, g_cacl2=0, g_mgso4=1)
         self.recipe = Recipe(
             name="Raison d'saison",
             brewhouse=brewhouse,
@@ -38,6 +46,8 @@ class TestRecipe(unittest.TestCase):
             boil_time=90,
             post_boil_volume=22.7,
             pitch_temp=20,
+            target_water_profile=target_water_profile,
+            salt_additions=salt_additions,
             authors=["Jamil Zainasheff", "John Palmer"],
             date=date(2007, 10, 5),
             description="Saison from Brewing Classic Styles.",
@@ -137,6 +147,18 @@ class TestRecipe(unittest.TestCase):
         actual = self.recipe.ibu()
         self.assertAlmostEqual(expected, actual, 6)
 
+    def test_water_profile(self):
+        expected = self.recipe.salt_additions.profile(
+            self.recipe.brewhouse.water_profile, self.recipe.pre_boil_volume()
+        )
+        actual = self.recipe.water_profile()
+        self.assertEqual(expected.ppm_calcium, actual.ppm_calcium)
+        self.assertEqual(expected.ppm_sodium, actual.ppm_sodium)
+        self.assertEqual(expected.ppm_magnesium, actual.ppm_magnesium)
+        self.assertEqual(expected.ppm_chloride, actual.ppm_chloride)
+        self.assertEqual(expected.ppm_bicarbonate, actual.ppm_bicarbonate)
+        self.assertEqual(expected.ppm_sulfate, actual.ppm_sulfate)
+
     def test_serialize(self):
         d_0 = dict(self.recipe)
         j = json.dumps(d_0)
@@ -146,6 +168,14 @@ class TestRecipe(unittest.TestCase):
         self.assertEqual(10, d["brewhouse"]["temp_approach"])
         self.assertEqual(19, d["brewhouse"]["temp_target"])
         self.assertEqual(45, d["brewhouse"]["cool_time_boil_to_target"])
+        self.assertEqual(WaterProfile.preset_pilsen().ppm_calcium, d["brewhouse"]["water_profile"]["ppm_calcium"])
+        self.assertEqual(WaterProfile.preset_pilsen().ppm_sodium, d["brewhouse"]["water_profile"]["ppm_sodium"])
+        self.assertEqual(WaterProfile.preset_pilsen().ppm_magnesium, d["brewhouse"]["water_profile"]["ppm_magnesium"])
+        self.assertEqual(WaterProfile.preset_pilsen().ppm_chloride, d["brewhouse"]["water_profile"]["ppm_chloride"])
+        self.assertEqual(
+            WaterProfile.preset_pilsen().ppm_bicarbonate, d["brewhouse"]["water_profile"]["ppm_bicarbonate"]
+        )
+        self.assertEqual(WaterProfile.preset_pilsen().ppm_sulfate, d["brewhouse"]["water_profile"]["ppm_sulfate"])
         # Extracts
         self.assertEqual("MASH", d["extracts"][0]["stage"])
         self.assertEqual("Pilsner malt", d["extracts"][0]["name"])
@@ -209,6 +239,19 @@ class TestRecipe(unittest.TestCase):
         self.assertEqual(1.0, d["mash"]["absorption"])
         self.assertEqual(1.722, d["mash"]["grist_heat_capacity"])
         self.assertEqual(0.67, d["mash"]["displacement"])
+        # Target water profile
+        self.assertEqual(WaterProfile.preset_munich().ppm_calcium, d["target_water_profile"]["ppm_calcium"])
+        self.assertEqual(WaterProfile.preset_munich().ppm_sodium, d["target_water_profile"]["ppm_sodium"])
+        self.assertEqual(WaterProfile.preset_munich().ppm_magnesium, d["target_water_profile"]["ppm_magnesium"])
+        self.assertEqual(WaterProfile.preset_munich().ppm_chloride, d["target_water_profile"]["ppm_chloride"])
+        self.assertEqual(WaterProfile.preset_munich().ppm_bicarbonate, d["target_water_profile"]["ppm_bicarbonate"])
+        self.assertEqual(WaterProfile.preset_munich().ppm_sulfate, d["target_water_profile"]["ppm_sulfate"])
+        # Salt additions
+        self.assertEqual(3.5, d["salt_additions"]["g_caco3"])
+        self.assertEqual(0.1, d["salt_additions"]["g_nahco3"])
+        self.assertEqual(2, d["salt_additions"]["g_caso4"])
+        self.assertEqual(0, d["salt_additions"]["g_cacl2"])
+        self.assertEqual(1, d["salt_additions"]["g_mgso4"])
         # Data
         self.assertEqual("Raison d'saison", d["name"])
         self.assertEqual(22.7, d["post_boil_volume"])
@@ -227,6 +270,12 @@ class TestRecipe(unittest.TestCase):
         self.assertEqual(10, recipe.brewhouse.temp_approach)
         self.assertEqual(19, recipe.brewhouse.temp_target)
         self.assertEqual(45, recipe.brewhouse.cool_time_boil_to_target)
+        self.assertEqual(WaterProfile.preset_pilsen().ppm_calcium, recipe.brewhouse.water_profile.ppm_calcium)
+        self.assertEqual(WaterProfile.preset_pilsen().ppm_sodium, recipe.brewhouse.water_profile.ppm_sodium)
+        self.assertEqual(WaterProfile.preset_pilsen().ppm_magnesium, recipe.brewhouse.water_profile.ppm_magnesium)
+        self.assertEqual(WaterProfile.preset_pilsen().ppm_chloride, recipe.brewhouse.water_profile.ppm_chloride)
+        self.assertEqual(WaterProfile.preset_pilsen().ppm_bicarbonate, recipe.brewhouse.water_profile.ppm_bicarbonate)
+        self.assertEqual(WaterProfile.preset_pilsen().ppm_sulfate, recipe.brewhouse.water_profile.ppm_sulfate)
         # Extracts
         self.assertEqual(Stage.MASH, recipe.extracts[0].stage)
         self.assertEqual("Pilsner malt", recipe.extracts[0].name)
@@ -277,6 +326,19 @@ class TestRecipe(unittest.TestCase):
         # CO2
         self.assertEqual(Stage.CONDITION, recipe.co2.stage)
         self.assertEqual(3.5, recipe.co2.volumes)
+        # Target water profile
+        self.assertEqual(WaterProfile.preset_munich().ppm_calcium, recipe.target_water_profile.ppm_calcium)
+        self.assertEqual(WaterProfile.preset_munich().ppm_sodium, recipe.target_water_profile.ppm_sodium)
+        self.assertEqual(WaterProfile.preset_munich().ppm_magnesium, recipe.target_water_profile.ppm_magnesium)
+        self.assertEqual(WaterProfile.preset_munich().ppm_chloride, recipe.target_water_profile.ppm_chloride)
+        self.assertEqual(WaterProfile.preset_munich().ppm_bicarbonate, recipe.target_water_profile.ppm_bicarbonate)
+        self.assertEqual(WaterProfile.preset_munich().ppm_sulfate, recipe.target_water_profile.ppm_sulfate)
+        # Salt additions
+        self.assertEqual(3.5, recipe.salt_additions.g_caco3)
+        self.assertEqual(0.1, recipe.salt_additions.g_nahco3)
+        self.assertEqual(2, recipe.salt_additions.g_caso4)
+        self.assertEqual(0, recipe.salt_additions.g_cacl2)
+        self.assertEqual(1, recipe.salt_additions.g_mgso4)
         # Mash steps
         self.assertEqual(64, recipe.mash.steps[0].temp_init)
         self.assertEqual(64, recipe.mash.steps[0].temp_final)

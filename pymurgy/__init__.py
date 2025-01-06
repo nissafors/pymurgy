@@ -4,6 +4,7 @@ from .ingredients.hop import Hop
 from .ingredients.yeast import Yeast
 from .ingredients.co2 import CO2
 from .ingredients.adjunct import Adjunct
+from .ingredients.water import WaterProfile, SaltAdditions
 from .process.mash import Mash
 from .process.process import Process, Temperature
 from .process.recipe import Recipe

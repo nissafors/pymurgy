@@ -1,12 +1,8 @@
-## fmt: off
-## Make sure we can always import from ./ no matter where we're called from
-# import sys, pathlib
-# sys.path.append(str(pathlib.Path(__file__).parent.resolve()))
-## fmt: on
-
-from dataclasses import dataclass
+from __future__ import annotations
+from dataclasses import dataclass, field
 from ..abstract import Serializable
 from ..calc import cooling_coefficient
+from ..ingredients.water import WaterProfile
 
 
 @dataclass
@@ -24,7 +20,34 @@ class Brewhouse(Serializable):
     temp_approach: int = 15
     temp_target: int = 20
     cool_time_boil_to_target: int = 30
+    water_profile: WaterProfile = field(default_factory=lambda: WaterProfile())
 
     def cooling_coefficient(self) -> float:
         """Get the cooling coefficient for this brewhouse."""
         return cooling_coefficient(self.temp_approach, self.temp_target, self.cool_time_boil_to_target, 100)
+
+    @staticmethod
+    def from_dict_callback(k, v):
+        if k == "water_profile":
+            return WaterProfile(
+                ppm_calcium=v["ppm_calcium"],
+                ppm_sodium=v["ppm_sodium"],
+                ppm_magnesium=v["ppm_magnesium"],
+                ppm_chloride=v["ppm_chloride"],
+                ppm_bicarbonate=v["ppm_bicarbonate"],
+                ppm_sulfate=v["ppm_sulfate"],
+            )
+        return v
+
+    @classmethod
+    def from_dict(cls, dict_repr: dict) -> Brewhouse:
+        """Populate self from a dict representation."""
+        return super().from_dict(dict_repr, callback=cls.from_dict_callback)
+
+    def __iter__(self):
+        """Yield json serializable key/value tuples from instance attributes."""
+        for k, v in self.__dict__.items():
+            if isinstance(v, WaterProfile):
+                yield k, dict(v)
+            else:
+                yield k, v
